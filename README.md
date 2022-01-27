@@ -1,27 +1,27 @@
 # Short Course on Small Area Estimation 
 
-In this course, I focus primarily on the area-level model (Fay-Herriot model). The unit-level model is 
+In this course, I focus primarily on the area-level model (Fay-Herriot model). The unit-level model is mentioned only in passing.
 
-## Data
+## 1 How to
 
-The dataset is stored as R code. Therefore, we `source` the dataset instead of loading it.
+* At the top of the web page there is a <button name="button" onclick="" style="background-color: #4CAF50; color:white;  border: none; text-decoration: none; border-radius: 4px;">Code</button> button (right side). Click on this button and pick the last option **Download ZIP** to download all files in a zip-archive. 
 
-```r
-source("data.R")
-```
+* Alternatively, you may clone the repo https://github.com/tobiasschoch/SAEcourse.git
 
-## Methods
+## 2 Content
 
-I have written some tiny auxiliary functions that may be helpful when working with the `sae` package. 
+### 2.1 Data
 
-```R
-source("methods.R")
-```
+The dataset is stored as R code. Therefore, we `source` the dataset instead of loading it. In your R session, call `source("data.R")`.
 
-## Code snippets used in the slides
+### 2.2 Methods – functions
 
-The file `snippets.R` contains the R code that I used in my slides.
+I have written some tiny auxiliary functions that may be helpful when working with the `sae` package. In your R session, call `source("methods.R")`.
 
-## Application – Sandbox
+### 2.3 Code snippets used in the slides
 
-The file `application.md`  contains some exercises and applications.
+The file `snippets.R` contains the R code that I used in my slides.
+
+### 2.4 Application – Sandbox
+
+The file `application.md`  contains some exercises and applications.
