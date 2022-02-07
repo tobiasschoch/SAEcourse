@@ -4,7 +4,7 @@ In this course, I focus primarily on the area-level model (Fay-Herriot model). T
 
 ## 1 How to
 
-* At the top of the web page there is a <tt style="background-color: #4CAF50; color:white;  border: none; text-decoration: none; border-radius: 4px; padding: 4px 10px">Code</tt> button (right side). Click on this button and pick the last option **Download ZIP** to download all files in a zip-archive.
+* Click on this [Link](https://github.com/tobiasschoch/SAEcourse/zipball/master) to download the latest version of the files (zip-archive).
 * Alternatively, you may clone the repo https://github.com/tobiasschoch/SAEcourse.git
 
 ## 2 Content
