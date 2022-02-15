@@ -1,9 +1,10 @@
 ---
-title: Fay-Herriot Model Estimates for an Income and Living Condition Survey
 subject: Notes for short course on small area estimation
 author: Tobias Schoch (tobias.schoch@fhnw.ch)
 version: February 12, 2022
 ---
+
+<h2 style="color:red"> >> SOLUTION</h2>
 
 # Fay-Herriot Model for a Income and Living Condition Survey: Application with R
 
@@ -36,7 +37,7 @@ The survey data `datLCS` contains 6 variables, which are measured for individual
 
 The data are stored as `datLCS.txt` file. We can load the data by
 
-```R
+```{r, eval=FALSE}
 datLCS <- read.table("datLCS.txt", header = TRUE, sep = "\t", dec = ",")
 ```
 
@@ -59,21 +60,21 @@ $$
 $$
 where $s_i$ is the part of the sample $s$ that falls into the $i$-th area, and $w_i$ denotes the sampling weight.
 
-There are several equivalent ways to compute the Hajek estimator for the small areas (defined by `dom`) with the R  software ([R Core Team](#References), 2022).[^(2)^](#Notes) We stick to the functions of the R `base` package.  First, we split the `datLCS` data into a list by `dom` . 
+There are several equivalent ways to compute the Hajek estimator for the small areas (defined by `dom`) with the R  software ([R Core Team](#References), 2022).[^(2)^](#Notes) We stick to the functions of the R `base` package.  First, we split the `datLCS` data into a list by `dom`.
 
-```R
+```{r, eval = FALSE}
 datLCS_dom <- split(datLCS, datLCS$dom)
 ```
 
 The object `datLCS_dom` is a list with 26 list entries (one for each area). The list entries consist of the area-specific part of the `datLCS` data. In the next step, we use `sapply()` to compute the Hajek estimator (i.e., weighted mean) by area.
 
-```R
+```{r, eval = FALSE}
 sapply(datLCS_dom, function(u) weighted.mean(u$income, u$w))
 ```
 
 A more complete function of the Hajek estimator (which is also capable of computing an approximate variance of the estimator) is given by
 
-```R
+```{r}
 hajek <- function(x, w)
 {
     avg <- weighted.mean(x, w)                         # Hajek estimator
@@ -93,11 +94,34 @@ cv_i = 100 \cdot \frac{v_i}{\bar{y}_i},
 $$
 for all $i=1,\ldots,n$ areas.  Finally, we want to combine the Hajek estimator (`avg`), its variance (`vi`), sample size in the $i$-th area (`ni`), and the coefficient of variation (`cv`) to one data.frame called `direct` using the `as.data.frame()` function; maybe you must  transponse the result using`t()` in order to obtain a rectangular representation of data (with area-specific observations on the rows and variables in the columns).
 
+<h2 style="color:red"> >> SOLUTION</h2>
+
+
+```{r}
+datLCS_dom <- split(datLCS, datLCS$dom)
+res <- sapply(datLCS_dom, function(u) hajek(u$income, u$w))
+direct <- as.data.frame(t(res))
+direct$dom <- as.numeric(rownames(direct))
+# Coefficient of variation (in %)
+direct$cv <- 100 * sqrt(direct$vi) / direct$avg
+# The first 3 lines of the data.frame 'direct'
+head(direct, 3)
+```
+```
+      avg         vi  ni  dom         cv
+ 8361.132   905784.7  57    3  11.382755
+13333.622  1850152.5  96    5  10.201303
+15869.133   968480.2  82    6   6.201435
+```
+
+
+
+
 ## 2 Auxiliary Data
 
 The  file `auxLCS.txt` contains aggregated auxiliary data for all $i=1,\ldots,26$ areas. We can load the data by
 
-```R
+```{r, echo=FALSE}
 auxLCS <- read.table("auxLCS.txt", header = TRUE, sep = "\t", dec = ",")
 ```
 
@@ -110,7 +134,7 @@ dom     TOT      Mwork     Mnowork     Minact         ss
   6  190653  0.3405221  0.15860230  0.3158246  0.5998553
 ```
 
-where 
+where
 
 * `TOT`:  total number of individuals in area,
 
@@ -124,7 +148,7 @@ We will utilize the auxiliary information as explanatory variables in the Fay-He
 
 *In theory, we can take the estimated variances $v_i$ of the direct estimators $\widehat{\theta}_i$ and estimate the Fay-Herriot model without further ado—in practice, we usually cannot because some of the $v_i$'s are too unstable.*
 
-In Section 3.1, we introduce the notion of *generalized variance function*s (GVF). The variances computed using GVF's tend to be much more stable than the variances of the direct estimator. Therefore, this approach is preferred in practice. Readers who are not interested in the details of GVF can skip Section 3.1 and go directly to Section 3.2. In Section 3.2, we provide a recipe for computing a GVF (without having to know details).
+In Section 3.1, we introduce the notion of  *generalized variance functions* (GVF). The variances computed using GVF's tend to be much more stable than the variances of the direct estimator. Therefore, this approach is preferred in practice. Readers who are not interested in the details of GVF can skip Section 3.1 and go directly to Section 3.2. In Section 3.2, we provide a recipe for computing a GVF (without having to know details).
 
 #### 3.1 Generalized variance function (theory)
 
@@ -141,7 +165,7 @@ V^2 = \alpha + \frac{\beta}{\theta},\tag{B}
 \end{equation*}
 $$
 
-where $\alpha$ and $\beta > 0$ are unknown parameters to be estimated. Observe the similarity of (A) and (B)—the denominator of the second term on the r.h.s. in (B) is $\theta$ not $\theta^2$. Clearly, the parameters $\alpha$ and $\beta$ depend upon the population, the sampling design, the estimator, etc. This model has been used in the US Current Population Survey since 1947 ([Wolter](#References), 2007, p. 274). 
+where $\alpha$ and $\beta > 0$ are unknown parameters to be estimated. Observe the similarity of (A) and (B)—the denominator of the second term on the r.h.s. in (B) is $\theta$ not $\theta^2$. Clearly, the parameters $\alpha$ and $\beta$ depend upon the population, the sampling design, the estimator, etc. This model has been used in the US Current Population Survey since 1947 ([Wolter](#References), 2007, p. 274).
 
 **Remarks**.
 
@@ -149,9 +173,9 @@ where $\alpha$ and $\beta > 0$ are unknown parameters to be estimated. Observe t
 * With empirical data, we substitute the $v_i$'s for $V$ and replace the $\widehat{\theta}_i$'s for $\theta$ in (B) for all $i=1,\ldots,26$ areas. Estimates of $\alpha$ and $\beta$ can be obtained by—for instance—ordinary least squares.
 * It is helpful to plot $v_i$ against $\widehat{\theta}_i$ (scatter plot) to learn more about the functional form of the $V^2$ vs. $\theta$ relationship (in order to select an appropriate model).
 * We seek to achieve a good empirical fit (model selection).
-* It can be useful to estimate the parameters (i.e., $\alpha$ and $\beta$ in Equation B) only on a subset of the data or use some kind or grouping. For instance, suppose that 5 out of 26 small areas have extremely unreliable $v_i$'s; thus, we exclude the 5 areas and fit the model to the data of the remaining areas. 
-* One danger to be avoided is the possibility of negative variance estimates. This can be avoided by using some kind of restricted estimating method (e.g., restricted least squares such that $\alpha$ is constrained to be positive). 
-* GVF's proved to be very useful in practice. Unfortunately, there is very little theoretical justification for any of the models  ([Wolter](#References), 2007, p. 274).  
+* It can be useful to estimate the parameters (i.e., $\alpha$ and $\beta$ in Equation B) only on a subset of the data or use some kind or grouping. For instance, suppose that 5 out of 26 small areas have extremely unreliable $v_i$'s; thus, we exclude the 5 areas and fit the model to the data of the remaining areas.
+* One danger to be avoided is the possibility of negative variance estimates. This can be avoided by using some kind of restricted estimating method (e.g., restricted least squares such that $\alpha$ is constrained to be positive).
+* GVF's proved to be very useful in practice. Unfortunately, there is very little theoretical justification for any of the models  ([Wolter](#References), 2007, p. 274).
 
 Suppose we have fitted model (B). The estimated parameters are denoted by $\widehat{\alpha}$ and $\widehat{\beta}$. Next, we can predict  the variances under the GVF model in (B) as $v_i^*  = \widehat{\alpha} + \widehat{\beta} / \widehat{\theta}_i$, for $i=1\ldots,26$. This variance should be much more stable than the $v_i$'s.
 
@@ -171,16 +195,29 @@ where $\widehat{\theta}_i$ is the Hajek (direct) estimator of average income, $v
 
 * Given the fitted GVF model (which we have assigned to `est`), compute the residual variance (i.e., an estimate of $\sigma_e^2$), which is defined as
 
-  ``` R
+  ```{r, eval=FALSE}
   sigma_e2 <- sum(residuals(est)^2) / df.residual(est)
   ```
 
-* Obtain the predicted values of the estimated model `est` using the `predict()` command. Assign the predicted values to the object `p`. Now, we are ready to compute the variances of the GVF model, $v_i^*$, as `exp(p + sigma_e2 / 2)` for all $i=1,\ldots,26$ small areas.[^(3)^](#Notes) Assign the so computed $v_i^*$'s to the data.frame `direct`  and call the new variable `vi_gvf`  (where the suffix `_gvf` reminds us that these variances have been computed by the GVF approach). 
+* Obtain the predicted values of the estimated model `est` using the `predict()` command. Assign the predicted values to the object `p`. Now, we are ready to compute the variances of the GVF model, $v_i^*$, as `exp(p + sigma_e2 / 2)` for all $i=1,\ldots,26$ small areas.[^(3)^](#Notes) Assign the so computed $v_i^*$'s to the data.frame `auxLCS`  and call the new variable `vi_gvf`  (where the suffix `_gvf` reminds us that these variances have been computed by the GVF approach).
 
+<h2 style="color:red"> >> SOLUTION</h2>
+
+```{r}
+# Generalized variance function
+est <- lm(log(vi) ~ avg * ni, data = direct)
+p <- predict(est)
+# Compute error varianc
+sigma_e2 <- sum(residuals(est)^2) / df.residual(est)
+# Variance of the direct estimator (using generalized variance function)
+direct$vi_gvf <- exp(p + sigma_e2 / 2)
+# Add auxiliary data to the data.frame 'direct'
+direct <- cbind(direct, auxLCS[order(auxLCS$dom), ])
+```
 
 #### 3.3 Estimation of the Fay-Herriot model
 
-Now, we are almost ready to fit the Fay-Herriot model to our data. In the last step of preparation, we add the auxiliary information `auxLCS` to the data.frame `direct`. To be on the safe side, we sort the data `auxLCS` by `dom` using `auxLCS[order(auxLCS$dom), ]`; and we do the same for the `direct` data.frame. Then, we can safely add the two data.frames with the `cbind()` command (without worrying to have generated mismatch). 
+Now, we are almost ready to fit the Fay-Herriot model to our data. In the last step of preparation, we add the auxiliary information `auxLCS` to the data.frame `direct`. To be on the safe side, we sort the data `auxLCS` by `dom` using `auxLCS[order(auxLCS$dom), ]`; and we do the same for the `direct` data.frame. Then, we can safely add the two data.frames with the `cbind()` command (without worrying to have generated mismatch).
 
 **Task 3**.
 
@@ -191,13 +228,37 @@ Now, we are almost ready to fit the Fay-Herriot model to our data. In the last s
   * Extract the EBLUP by `m$est$eblup[, 1]`. Make a scatter plot the EBLUP against the Hajek estimator (`avg`). Add the 45-degree line to the plot.
   * The estimated MSE can be extracted by`m$mse`. Make a line plot of the estimated MSE for the $i=1,\ldots, 26$ areas. Add a line for the GVF variance of the Hajek estimator (`vi_gvf`).
 
+<h2 style="color:red"> >> SOLUTION</h2>
+
+```{r}
+# Estimate Fay-Herriot model (REML estimate of variance)
+m <- eblupFH(avg ~ Mwork + Mnowork + Minact, vardir = vi_gvf, data = direct)
+# Estimate Fay-Herriot model (without Mwork, because it is not significantly
+# different from zero at 10% level of significance)
+m <- eblupFH(avg ~ Mnowork + Minact, vardir = vi_gvf, data = direct)
+# Estimate the second-order analytical approximation to the MSE
+m <- mseFH(avg ~ Mnowork + Minact, vardir = vi_gvf, data = direct)
+```
+
+And the plots (not shown in this document)
+
+```{r}
+# Scatter plot of EBLUP against Hajek estimator
+plot(direct$avg, m$est$eblup[, 1])
+abline(0, 1)
+# Line plot MSE and GVF variance
+plot(direct$vi_gvf, type = "b")
+lines(m$mse, type = "b", pch = 19)
+legend("topleft", legend = c("vi_gvf", "MSE"), pch = c(1, 19), lwd = c(1, 1))
+```
+
 ## Notes
 
 ^(1)^ The LCS data synthetically generated data that imitate the structure of an income an living condition survey; see [Morales et al.](#References) (2021, p. 4).
 
 ^(2)^ Instead of the functions in the R `base` package, we may use R packages `data.table` or `tidyr` to compute the area-specific estimates.
 
-^(3)^ The naive predictor under model (C) is $\exp(\textbf{x}_i^T\widehat{\textbf{b}})$, where $\widehat{\textbf{b}} = (\widehat{b}_0, \ldots, \widehat{b}_3)^T$ is the least squares estimate and $\textbf{x}_i$ denotes the vector of explanatory variables. This predictor can be heavily biased—in particular if the estimate of $\sigma_e^2$  is large. If we assume that the $v_i$'s have a lognormal distribution, the predictor is $\exp(\textbf{x}_i^T\widehat{\textbf{b}} + \widehat{\sigma}_e^2/2)$. 
+^(3)^ The naive predictor under model (C) is $\exp(\textbf{x}_i^T\widehat{\textbf{b}})$, where $\widehat{\textbf{b}} = (\widehat{b}_0, \ldots, \widehat{b}_3)^T$ is the least squares estimate and $\textbf{x}_i$ denotes the vector of explanatory variables. This predictor can be heavily biased—in particular if the estimate of $\sigma_e^2$  is large. If we assume that the $v_i$'s have a lognormal distribution, the predictor is $\exp(\textbf{x}_i^T\widehat{\textbf{b}} + \widehat{\sigma}_e^2/2)$.
 
 ## References
 
